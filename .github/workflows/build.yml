@@ -79,8 +79,8 @@ jobs:
     - name: Install system build dependencies
       run: |
         sudo dpkg --add-architecture i386
-        sudo apt-get update
-        sudo apt-get install -y liblzma-dev p7zip-full gcc-mingw-w64-i686 gcc gcc-multilib libc6-dev-i386 libx11-dev libxcb1-dev libx11-dev:i386 libxcb1-dev:i386 libxext-dev:i386
+        sudo apt update
+        sudo apt install -y liblzma-dev p7zip-full gcc-mingw-w64-i686 gcc gcc-multilib libc6-dev-i386 libx11-dev libxcb1-dev libx11-dev:i386 libxcb1-dev:i386 libxext-dev:i386 zsync
 
     - name: Setup and Build
       id: build
@@ -97,7 +97,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: ${{ steps.build.outputs.original_appimage_name }}
-        path: ${{ steps.build.outputs.original_appimage_file }}
+        path: ${{ steps.build.outputs.original_appimage_file }}*
         retention-days: 30
         
     - name: Upload ZaDark AppImage artifact
@@ -105,7 +105,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: ${{ steps.build.outputs.zadark_appimage_name }}
-        path: ${{ steps.build.outputs.zadark_appimage_file }}
+        path: ${{ steps.build.outputs.zadark_appimage_file }}*
         retention-days: 30
 
     - name: Upload Full AppImage artifact (wine bundled, ZaDark)
@@ -113,7 +113,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: ${{ steps.build.outputs.full_appimage_name }}
-        path: ${{ steps.build.outputs.full_appimage_file }}
+        path: ${{ steps.build.outputs.full_appimage_file }}*
         retention-days: 30
 
     - name: Upload Full AppImage artifact (wine bundled, no ZaDark)
@@ -121,7 +121,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: ${{ steps.build.outputs.plainfull_appimage_name }}
-        path: ${{ steps.build.outputs.plainfull_appimage_file }}
+        path: ${{ steps.build.outputs.plainfull_appimage_file }}*
         retention-days: 30
 
     - name: Create Release
@@ -155,10 +155,10 @@ jobs:
           Please report issues in the [GitHub Issues](https://github.com/${{ github.repository }}/issues) section.
 
         files: |
-          ${{ steps.build.outputs.original_appimage_file }}
-          ${{ steps.build.outputs.zadark_appimage_file }}
-          ${{ steps.build.outputs.plainfull_appimage_file }}
-          ${{ steps.build.outputs.full_appimage_file }}
+          ${{ steps.build.outputs.original_appimage_file }}*
+          ${{ steps.build.outputs.zadark_appimage_file }}*
+          ${{ steps.build.outputs.plainfull_appimage_file }}*
+          ${{ steps.build.outputs.full_appimage_file }}*
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -181,7 +181,7 @@ jobs:
         fi
 
         for name in $asset_names; do
-          if [[ "$name" == Zalo-*.AppImage ]] && [[ "$name" != *"$CURRENT_COMMIT"* ]]; then
+          if [[ "$name" == Zalo-*.AppImage* ]] && [[ "$name" != *"$CURRENT_COMMIT"* ]]; then
             echo "Removing old asset: $name"
             gh release delete-asset "$RELEASE_TAG" "$name" --yes
           fi

@@ -5,6 +5,7 @@ const logger = require('./utils/logger');
 
 const BASE_DIR = path.join(__dirname, '..');
 const APP_DIR = path.join(BASE_DIR, 'app');
+const DIST_DIR = path.join(BASE_DIR, 'dist');
 
 let ZALO_VERSION = null;
 const builtFiles = [];
@@ -128,6 +129,7 @@ async function build(buildName = '', outputSuffix = '') {
   try {
     // Get git commit hash for filename
     const commitHash = execSync('git rev-parse --short HEAD', { encoding: 'utf8' }).trim();
+    const St2script = path.join(BASE_DIR, 'scripts', 'build-stage2.sh');
 
     // Set artifact name and build command based on build type
     let artifactName;
@@ -151,14 +153,17 @@ async function build(buildName = '', outputSuffix = '') {
 
       artifactName = `Zalo-${ZALO_VERSION}+ZaDark-${zadarkVersion}-${commitHash}${outputSuffix}.AppImage`;
       buildCommand = `npx electron-builder --linux --config.linux.artifactName="${artifactName}" -c.extraMetadata.version=${ZALO_VERSION} --publish=never`;
+      buildCommandst2 = `chmod +x "${St2script}" && "${St2script}" "${ZALO_VERSION}" "${artifactName}" "${DIST_DIR}"`;
       logger.info(`Building ${buildName} with Zalo: ${ZALO_VERSION}, ZaDark: ${zadarkVersion}, Commit: ${commitHash}`);
     } else if (outputSuffix === '-PlainFull') {
       artifactName = `Zalo-${ZALO_VERSION}-${commitHash}-Full.AppImage`;
       buildCommand = `npx electron-builder --linux --config.linux.artifactName="${artifactName}" -c.extraMetadata.version=${ZALO_VERSION} --publish=never`;
+      buildCommandst2 = `chmod +x "${St2script}" && "${St2script}" "${ZALO_VERSION}" "${artifactName}" "${DIST_DIR}"`;
       logger.info(`Building ${buildName} with Zalo: ${ZALO_VERSION}, Commit: ${commitHash}`);
     } else {
       artifactName = `Zalo-${ZALO_VERSION}-${commitHash}.AppImage`;
       buildCommand = `npx electron-builder --linux --config.linux.artifactName="${artifactName}" -c.extraMetadata.version=${ZALO_VERSION} --publish=never`;
+      buildCommandst2 = `chmod +x "${St2script}" && "${St2script}" "${ZALO_VERSION}" "${artifactName}" "${DIST_DIR}"`;
       logger.info(`Building ${buildName} with Zalo: ${ZALO_VERSION}, Commit: ${commitHash}`);
     }
     // Write build-info.json to the app directory so the AppImage will contain its metadata
@@ -178,9 +183,12 @@ async function build(buildName = '', outputSuffix = '') {
     }
 
     logger.dim(`Command: ${buildCommand}`);
+    logger.dim(`Command (Stage 2): ${buildCommandst2}`);
 
     // Capture build output to get file information
-    const buildOutput = execSync(buildCommand, {
+    const combinedCommand = `${buildCommand} && ${buildCommandst2}`;
+
+    const buildOutput = execSync(combinedCommand, {
       stdio: 'pipe',
       cwd: path.join(BASE_DIR),
       encoding: 'utf8'
