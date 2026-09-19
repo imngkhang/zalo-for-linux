@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-# 1. Khai báo tham số và biến môi trường
+# Get the envs from arguments
 VER="${1:-unknown}"
 OUTNAME="${2:?Error: No OUTNAME given}"
 DIST_DIR="${3:?Error: No DIST_DIR given}"
@@ -23,20 +23,20 @@ export APPDIR OUTNAME
 
 echo "=== Building Zalo AppImage for ${ARCH} ==="
 
-# 2. Kiểm tra điều kiện đầu vào
+# Check if the original AppImage exists
 if [[ ! -f "${DIST_DIR}/${OUTNAME}" ]]; then
   echo "Error: Cannot find ${OUTNAME}, please run the builder first." >&2
   exit 1
 fi
 
-# 3. Chuẩn bị công cụ appimagetool (Quick-Sharun)
+# Prepare appimagetool (which is quick-sharun.sh in this case)
 if [[ ! -f "$APPIMAGETOOL" ]]; then
   echo "Downloading appimagetool..."
   wget -q https://raw.githubusercontent.com/pkgforge-dev/Anylinux-AppImages/refs/heads/main/useful-tools/quick-sharun.sh -O "$APPIMAGETOOL"
   chmod +x "$APPIMAGETOOL"
 fi
 
-# 4. Giải nén AppImage gốc
+# Extract the original AppImage
 echo "Extracting AppImage..."
 chmod +x "${DIST_DIR}/${OUTNAME}"
 cd "$DIST_DIR"
@@ -47,14 +47,14 @@ if [[ ! -d "$APPDIR" ]]; then
   exit 1
 fi
 
-# 5. Dọn dẹp file cũ trước khi đóng gói lại
+# Remove the original AppImage before repacking
 rm -f "$OUTNAME"
 
-# 6. Đóng gói AppImage mới
+# Repack it with quick-sharun
 echo "Packaging $OUTNAME..."
 "$APPIMAGETOOL" --make-appimage
 
-# 7. Dọn dẹp thư mục tạm và phân quyền
+# Cleanup and chmod the output file
 rm -rf "$APPDIR" "${DIST_DIR}/appinfo"
 chmod +x "$OUTNAME" || true
 
