@@ -7,7 +7,7 @@ VER="${1:-unknown}"
 OUTNAME="${2:?Error: No OUTNAME given}"
 DIST_DIR="${3:?Error: No DIST_DIR given}"
 
-export ARCH="x86_64"
+export ARCH="$(uname -m)"
 export APP_NAME="Zalo"
 export DESKTOP="zalo.desktop"
 export ICON="zalo.png"
