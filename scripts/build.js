@@ -31,18 +31,26 @@ async function main() {
     // silently bloat the standard variants — start clean; Phase 3 re-bundles.
     fs.rmSync(path.join(APP_DIR, 'native', 'wine-runtime'), { recursive: true, force: true });
 
+    // Check architecture for Full variants
+    const isArm64 = process.arch === 'arm64' || process.arch === 'aarch64';
+
     // Phase 1: Build original Zalo
     logger.step('PHASE 1: Building Zalo (Original)');
     await build('(Original)', '');
 
     // Phase 1.5: Full variant of the original (no ZaDark) — wine bundled.
-    logger.step('PHASE 1.5: Building Zalo (Full — wine bundled, no ZaDark)');
-    await bundleWineRuntime();
-    await build('(Full — wine bundled)', '-PlainFull');
-    // Remove the runtime again — the standard variants must not contain it,
-    // and a leftover from a previous run would silently bloat them (and the
-    // next Full build) to the Full size.
-    fs.rmSync(path.join(APP_DIR, 'native', 'wine-runtime'), { recursive: true, force: true });
+    // This is only built on x86_64, because zcall is not supported on aarch64.
+    if (!isArm64) {
+      logger.step('PHASE 1.5: Building Zalo (Full — wine bundled, no ZaDark)');
+      await bundleWineRuntime();
+      await build('(Full — wine bundled)', '-PlainFull');
+      // Remove the runtime again — the standard variants must not contain it,
+      // and a leftover from a previous run would silently bloat them (and the
+      // next Full build) to the Full size.
+      fs.rmSync(path.join(APP_DIR, 'native', 'wine-runtime'), { recursive: true, force: true });
+    } else {
+      logger.info('PHASE 1.5: Skipping Full variant build on aa64, zcall is not supported on this architecture');
+    }
 
     // Phase 2: Apply ZaDark integration and build final product
     logger.step('PHASE 2: Building Zalo (with ZaDark)');
@@ -53,10 +61,14 @@ async function main() {
 
     // Phase 3: Full variant of the ZaDark build — wine bundled, so the call
     // feature works out of the box with no first-run download.
-    logger.step('PHASE 3: Building Zalo (Full — wine bundled, with ZaDark)');
-    await bundleWineRuntime();
-    await build('(Full — wine bundled)', '-Full');
-    fs.rmSync(path.join(APP_DIR, 'native', 'wine-runtime'), { recursive: true, force: true });
+    if (!isArm64) {
+      logger.step('PHASE 3: Building Zalo (Full — wine bundled, with ZaDark)');
+      await bundleWineRuntime();
+      await build('(Full — wine bundled)', '-Full');
+      fs.rmSync(path.join(APP_DIR, 'native', 'wine-runtime'), { recursive: true, force: true });
+    } else {
+      logger.info('PHASE 3: Skipping Full with ZaDark variant build on aa64');
+    }
 
     // Final summary
     logger.step('BUILD SUMMARY');
