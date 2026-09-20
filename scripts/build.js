@@ -78,6 +78,12 @@ const WINE_DOWNLOAD_URL =
   'https://github.com/Kron4ek/Wine-Builds/releases/download/11.14/wine-11.14-amd64.tar.xz';
 
 async function bundleWineRuntime() {
+  // we will skip the wine bundle if on aarch64 because zcall is currently not supported on it
+  if (process.arch === 'arm64' || process.arch === 'aarch64') {
+    logger.info('skipping wine bundle on aa64, zcall is not supported on this architecture');
+    return;
+  }
+
   const target = path.join(APP_DIR, 'native', 'wine-runtime');
   if (fs.existsSync(path.join(target, 'bin', 'wine'))) {
     logger.dim('wine runtime already bundled, skipping download');

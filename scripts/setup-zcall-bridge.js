@@ -76,7 +76,7 @@ async function main() {
 
   const currentArch = process.arch || os.arch();
   if (currentArch === 'arm64' || currentArch === 'aarch64') {
-    logger.warn(`Skipping zcall-bridge setup: ${currentArch} is not supported for 32-bit Wine runtime.`);
+    logger.warn(`Skipping zcall-bridge setup: aarch64 is not supported for 32-bit Wine runtime.`);
     return;
   }
 
