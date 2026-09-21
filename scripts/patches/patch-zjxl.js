@@ -47,7 +47,7 @@ async function main() {
     if (!content.includes("process.platform === 'linux'")) {
       content = content.replace(
         `} else {\n    return { error: 'not support' };\n  }`,
-        `} else if (process.platform === 'linux') {\n    if (process.arch === 'arm64') nodeAddon = require('./build/linux_arm64/jxl.node');\n    else nodeAddon = require('./build/linux_x64/jxl.node');\n  } else {\n    return { error: 'not support' };\n  }`
+        `} else if (process.platform === 'linux') {\n    if (process.arch === 'arm64') nodeAddon = require('./build/linux_x64/jxl.node');\n    else nodeAddon = require('./build/linux_x64/jxl.node');\n  } else {\n    return { error: 'not support' };\n  }`
       );
       fs.writeFileSync(indexJsPath, content, 'utf8');
       logger.dim('Patched index.js for Linux support');

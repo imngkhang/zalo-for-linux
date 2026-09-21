@@ -6,7 +6,7 @@ const APP_DIR = path.join(__dirname, '..', '..', 'app');
 const NODE_MODULES = path.join(__dirname, '..', '..', 'node_modules');
 
 async function main() {
-  const sqliteTargetDir = path.join(APP_DIR, 'native', 'nativelibs', 'sqlite3', 'binding', 'napi-v6-linux-x64');
+  const sqliteTargetDir = path.join(APP_DIR, 'native', 'nativelibs', 'sqlite3', 'binding', 'napi-v6-linux-arm64');
   fs.mkdirSync(sqliteTargetDir, { recursive: true });
 
   const targetNodePath = path.join(sqliteTargetDir, 'node_sqlite3.node');
