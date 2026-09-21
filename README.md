@@ -8,7 +8,7 @@ Thanks **realdtn2** for the solution: [realdtn2/zalo-linux-2026](https://github.
 
 ## ⚠️ Important: Known Issues
 
-- **✅ Fixed: Can't make or receive calls:** The call module (`zcall`) only ships as a macOS native binary.
+- **➖ Partly-fixed: Can't make or receive calls:** Thanks to @collyn for setting up a Wine wrapper to solve this. See [PR #62](https://github.com/doandat943/zalo-for-linux/pull/62) for more info, but currenly calling is not aviable on aarch64, because Windows `zcall` only supports x86_64.
 - **System/Auto Theme not working:** The app does not follow the system's dark/light mode. Both ZaDark and Zalo ignore `prefers-color-scheme`. See [issue #22](https://github.com/doandat943/zalo-for-linux/issues/22).
 
 This project is best suited for users who need a native-feeling Zalo client on Linux and are comfortable with the technical workarounds required for full functionality.
@@ -65,7 +65,7 @@ We strongly recommend using **Gear Lever** to integrate the AppImage perfectly i
 
 Prerequisites:
 
-- Linux x86_64
+- Linux x86_64 or aarch64
 - Node.js and npm
 - 7z (p7zip-full) for extracting the macOS app during setup
 - C++ build tools (for native addons): `build-essential`, `libssl-dev`, `liblzma-dev`
